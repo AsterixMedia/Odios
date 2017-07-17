@@ -6,6 +6,7 @@ import serialize from 'serialize-javascript'
 import { renderToString } from 'react-dom/server'
 import { Provider } from 'react-redux'
 import { MuiThemeProvider } from 'material-ui/styles'
+import { Helmet } from 'react-helmet'
 
 import configureStore from '../common/store/configureStore'
 import App from '../common/containers/App'
@@ -47,17 +48,19 @@ server
       // Grab the initial state from our Redux store
       const finalState = store.getState()
 
+      // Helmet contents
+      const helmet = Helmet.renderStatic()
+
       res.send(`<!doctype html>
-    <html lang="">
+    <html lang="en" ${helmet.htmlAttributes.toString()}>
     <head>
-        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta charSet='utf-8' />
-        <title>Razzle Redux Example</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         ${assets.client.css ? `<link rel="stylesheet" href="${assets.client.css}">` : ''}
         <script src="${assets.client.js}" defer></script>
+        ${helmet.title.toString()}
+        ${helmet.meta.toString()}
+        ${helmet.link.toString()}
     </head>
-    <body>
+    <body ${helmet.bodyAttributes.toString()}>
         <div id="root">${markup}</div>
         <style id="jss-server-side">${css}</style>
         <script>
