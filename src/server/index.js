@@ -1,6 +1,7 @@
 import express from 'express'
 // import path from 'path'
 import React from 'react'
+import { StaticRouter, matchPath } from 'react-router-dom'
 import qs from 'qs'
 import serialize from 'serialize-javascript'
 import { renderToString } from 'react-dom/server'
@@ -22,6 +23,7 @@ server
   .disable('x-powered-by')
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
   .get('/*', (req, res) => {
+    const context = {}
     fetchCounter(apiResult => {
       // Read the counter from the request, if provided
       const params = qs.parse(req.query)
@@ -37,7 +39,9 @@ server
       const markup = renderToString(
         <Provider store={store}>
           <MuiThemeProvider styleManager={styleManager} theme={theme}>
-            <App />
+            <StaticRouter context={context} location={req.url}>
+              <App />
+            </StaticRouter>
           </MuiThemeProvider>
         </Provider>
       )
@@ -51,7 +55,10 @@ server
       // Helmet contents
       const helmet = Helmet.renderStatic()
 
-      res.send(`<!doctype html>
+      if (context.url) {
+        res.redirect(context.url)
+      } else {
+        res.status(200).send(`<!doctype html>
     <html lang="en" ${helmet.htmlAttributes.toString()}>
     <head>
         ${assets.client.css ? `<link rel="stylesheet" href="${assets.client.css}">` : ''}
@@ -68,6 +75,7 @@ server
         </script>
     </body>
 </html>`)
+      }
     })
   })
 

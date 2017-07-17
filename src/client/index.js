@@ -2,6 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { MuiThemeProvider } from 'material-ui/styles'
+import Router from 'react-router-dom/BrowserRouter'
 
 import configureStore from '../common/store/configureStore'
 import App from '../common/containers/App'
@@ -26,7 +27,9 @@ const store = configureStore(window.__PRELOADED_STATE__)
 render(
   <Provider store={store}>
     <MuiThemeProvider styleManager={styleManager} theme={theme}>
-      <Main />
+      <Router>
+        <Main />
+      </Router>
     </MuiThemeProvider>
   </Provider>,
   document.getElementById('root')
