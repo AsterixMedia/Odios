@@ -1,14 +1,16 @@
 import express from 'express'
-import path from 'path'
+// import path from 'path'
 import React from 'react'
 import qs from 'qs'
 import serialize from 'serialize-javascript'
 import { renderToString } from 'react-dom/server'
 import { Provider } from 'react-redux'
+import { MuiThemeProvider } from 'material-ui/styles'
 
 import configureStore from '../common/store/configureStore'
 import App from '../common/containers/App'
 import { fetchCounter } from '../common/api/counter'
+import { styleManager, theme } from '../common/styles'
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST)
 
@@ -33,9 +35,14 @@ server
       // Render the component to a string
       const markup = renderToString(
         <Provider store={store}>
-          <App />
+          <MuiThemeProvider styleManager={styleManager} theme={theme}>
+            <App />
+          </MuiThemeProvider>
         </Provider>
       )
+
+      // CSS from JSS
+      const css = styleManager.sheetsToString()
 
       // Grab the initial state from our Redux store
       const finalState = store.getState()
@@ -52,6 +59,7 @@ server
     </head>
     <body>
         <div id="root">${markup}</div>
+        <style id="jss-server-side">${css}</style>
         <script>
           window.__PRELOADED_STATE__ = ${serialize(finalState)}
         </script>
